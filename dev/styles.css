@@ -1,0 +1,349 @@
+:root {
+  --csd-blue: #0000ff;
+  --csd-pink: #ff00ff; /* vibrant pink from 2026 refresh */
+  --csd-white: #ffffff;
+  --csd-gradient: linear-gradient(
+    135deg,
+    var(--csd-blue),
+    var(--csd-pink)
+  ); /* Chameleon Heart palette */
+  --csd-font:
+    'Singing Sans', sans-serif; /* bold, playful sans-serif alternative */
+}
+
+#csd-voting-app {
+  display: block;
+  position: relative;
+  padding: 22px 0;
+  background-color: #0c0032; /* deep dark blue common in Eurovision apps */
+  font-size: 16px;
+  font-family: var(--csd-font);
+  color: var(--csd-white);
+}
+
+#csd-voting-app *,
+#csd-voting-app *::before,
+#csd-voting-app *::after {
+  box-sizing: border-box;
+}
+
+#csd-voting-app #voting-ui,
+#csd-voting-app #thank-you-ui {
+  margin: 0px auto;
+}
+
+#csd-voting-app #voting-ui {
+  max-width: 500px;
+}
+
+#csd-voting-app #thank-you-ui {
+  display: none;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+/* ==================================================
+instructions
+================================================== */
+
+#csd-voting-app .instructions {
+  width: 100%;
+  margin: 0 auto 19px;
+  font-size: 1.05em;
+  line-height: 1.5;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.2px;
+}
+
+/* ==================================================
+ranking card interface 
+================================================== */
+
+#csd-voting-app #entry-list {
+  width: 100%;
+  list-style: none;
+  padding: 0;
+  overscroll-behavior: contain;
+}
+
+#csd-voting-app .entry-item {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px); /* 2026 liquid glass */
+  margin-bottom: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: grab;
+  touch-action: none;
+  transition:
+    transform 0.2s,
+    background 0.2s;
+  transition: background 0.2s;
+  will-change: auto;
+}
+
+#csd-voting-app .entry-item:active {
+  cursor: grabbing;
+}
+
+/* points badge */
+#csd-voting-app .score-badge {
+  background: var(--csd-gradient);
+  color: white;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: bold;
+  margin-right: 15px;
+  box-shadow: 0 4px 10px rgba(255, 0, 255, 0.3);
+}
+
+#csd-voting-app .entry-name {
+  flex-grow: 1;
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+/* ==================================================
+drag-and-drop states
+================================================== */
+
+/* initial state: visible border, no color */
+#csd-voting-app .score-badge {
+  opacity: 1; /* always visible */
+  background: transparent;
+  border: 2px dashed rgba(255, 255, 255, 0.3); /* placeholder border */
+  color: transparent; /* hide numbers initially */
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* active state: triggered for individual tiles */
+#csd-voting-app .entry-item.is-ranked .score-badge {
+  background: var(--csd-gradient); /* vibrant 2026 gradient */
+  border: 2px solid rgb(150, 0, 150);
+  color: white; /* reveal the number */
+  box-shadow: 0 4px 12px rgba(255, 0, 255, 0.4);
+}
+
+#csd-voting-app .entry-item:first-of-type.is-ranked .score-badge {
+  box-shadow:
+    0 0 0 2px rgba(255, 0, 255, 0.6),
+    0 0 12px rgba(255, 0, 255, 0.8),
+    0 0 22px rgba(255, 0, 255, 0.6);
+}
+
+/* styling for SortableJS classes */
+#csd-voting-app .sortable-ghost {
+  opacity: 0.4;
+  background: var(--csd-blue) !important;
+}
+
+#csd-voting-app .sortable-chosen {
+  background: rgba(255, 255, 255, 0.2);
+  /* transform: scale(1.02); */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* drag handle icon for visual clarity */
+#csd-voting-app .drag-handle {
+  color: rgba(255, 255, 255, 0.5);
+  margin-left: 10px;
+  font-size: 1.2em;
+  pointer-events: none;
+}
+
+/* animate badge number changes */
+@keyframes csdScorePop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+#csd-voting-app .score-badge.score-changed {
+  animation: csdScorePop 220ms ease-out;
+}
+
+/* ==================================================
+zip code input
+================================================== */
+
+#csd-voting-app .zip-input {
+  display: block;
+  width: 100%;
+  margin: 20px auto 10px;
+  padding: 16px 22px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50px; /* pill shape */
+  color: white;
+  font-size: 1.1em;
+  font-weight: 500;
+  outline: none;
+  box-shadow: 0 6px 18px rgba(255, 0, 255, 0.25);
+  transition: all 0.25s ease;
+}
+
+#csd-voting-app .zip-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9545em;
+}
+
+/* focus state */
+#csd-voting-app .zip-input:focus {
+  border-color: rgb(180, 0, 180);
+  box-shadow:
+    0 0 0 3px rgba(255, 0, 255, 0.25),
+    0 10px 25px rgba(255, 0, 255, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* only glow on focus when invalid */
+#csd-voting-app .zip-input:focus:invalid {
+  border-color: rgb(255, 80, 80);
+  box-shadow: 0 0 0 3px rgba(255, 80, 80, 0.25);
+}
+
+/* force Chrome autofill to match glass background */
+#csd-voting-app .zip-input:-webkit-autofill,
+#csd-voting-app .zip-input:-webkit-autofill:hover,
+#csd-voting-app .zip-input:-webkit-autofill:focus,
+#csd-voting-app .zip-input:-webkit-autofill:active {
+  -webkit-text-fill-color: white !important;
+  /* rebuild focus look */
+  -webkit-box-shadow:
+    0 0 0 3px rgba(255, 0, 255, 0.25),
+    0 10px 25px rgba(255, 0, 255, 0.4),
+    0 0 0 1000px rgba(255, 255, 255, 0.12) inset !important;
+  border-color: rgb(180, 0, 180) !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+#csd-voting-app .zip-input:-webkit-autofill:not(:focus) {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.08) inset !important;
+}
+
+/* ==================================================
+submit button
+================================================== */
+
+#csd-voting-app .submit-button {
+  display: block;
+  width: 100%;
+  margin: 30px auto 0;
+  padding: 16px;
+  border: 2px solid rgb(100, 0, 100);
+  border-radius: 50px; /* pill shape standard for 2026 */
+  background: var(--csd-gradient);
+  color: white;
+  font-family: var(--csd-font);
+  font-size: 1.2em;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(255, 0, 255, 0.3);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+#csd-voting-app .submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(255, 0, 255, 0.5);
+  filter: brightness(1.1);
+}
+
+#csd-voting-app .submit-button:active {
+  transform: translateY(1px);
+}
+
+/* ==================================================
+loading overlay
+================================================== */
+
+#csd-voting-app #loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 0, 50, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+#csd-voting-app #loading-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#csd-voting-app .loading-card {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  margin-bottom: 45px;
+  padding: 28px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+#csd-voting-app .loading-text {
+  font-size: 1.05em;
+  letter-spacing: 0.4px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+#csd-voting-app .spinner {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--csd-pink);
+  animation: csdSpin 0.9s linear infinite;
+}
+
+@keyframes csdSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==================================================
+thank-you message
+================================================== */
+
+#csd-voting-app .thank-you-message {
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+#csd-voting-app .thank-you-message h2 {
+  margin: 80px 16px 92px;
+  line-height: 1.5;
+  font-size: 1.6em;
+  letter-spacing: 0.5px;
+}
