@@ -4,7 +4,7 @@ A configurable, ranked voting widget built for KLRN’s City Showdown contest.
 
 This project implements a drag-and-drop ranked voting interface with configurable entries, scoring and voting periods, and asynchronous API form submission. Although originally styled for City Showdown, the architecture is configuration-driven and reusable for other ranked voting applications.
 
-![Nielsen Data Explorer Dashboard 2](images/ranked-voting-widget.png)
+![Nielsen Data Explorer Dashboard 2](images/ranked-voting-widget-2.png)
 
 ---
 
