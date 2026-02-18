@@ -17,19 +17,33 @@ This project implements a drag-and-drop ranked voting interface with configurabl
 - Client-side ZIP code validation
 - Structured JSON submission payload
 - Smooth height-transition thank-you state
+- Layered client-side vote integrity protections
 - Minimal dependency footprint (Sortable bundled locally)
 
 ---
 
-## 🏗 Architecture Overview
+## 🏗 Architecture and Flow
 
 The widget is designed as an embeddable component that:
 
 1. Reads configuration from a `<script type="application/json">`
 2. Generates entry items dynamically
 3. Applies ranked scoring based on drag order
-4. Submits validated JSON to a server endpoint
-5. Transitions to a thank-you state on success
+4. Validates user input and voting eligibility
+5. Submits validated JSON to a server endpoint
+6. Transitions to a thank-you state on success
+
+---
+
+## 🔒 Client-Side Vote Integrity
+
+- One vote per device per voting period
+- Local storage and cookies are required for voting
+- Device fingerprint validation helps detect simple automation
+- Submit lock prevents re-submissions or accidental double votes
+- Timing protection blocks unrealistically fast submissions
+- Honeypot field helps detect automated bots
+- Voting period and votes cast are validated before submission
 
 ---
 
