@@ -4,13 +4,29 @@ import Sortable from './vendor/sortable.esm.js';
 // set up globals
 /////////////////
 
+//set user vote tracking
+const VOTE_KEY = 'csd-uv';
+const pageLoadedAt = Date.now();
+const runtimeToken = crypto.randomUUID(); 
+let activePeriod = null;
+let isSubmitting = false;
+
+//get config values
 const configEl = document.getElementById('csd-config');
 if (!configEl) throw new Error('Missing #csd-config element');
-
 const csdConfig = JSON.parse(configEl.textContent);
 const entryItems = csdConfig.entries;
 const pointsLadder = csdConfig.points;
 const testMode = csdConfig.testMode;
+const votingPeriods = csdConfig.votingPeriods.map((subArray) =>
+  subArray.map((dateStr) => dateStr.replace(/\s/g, '')),
+);
+
+//freeze to prevent tampering
+Object.freeze(csdConfig);
+Object.freeze(entryItems);
+Object.freeze(pointsLadder);
+Object.freeze(votingPeriods);
 
 //set form's action path
 const votingForm = document.getElementById('voting-form');
@@ -19,10 +35,110 @@ votingForm.action = csdConfig.apiUrl;
 //set results container
 let voteResults = [];
 
+//////////
+// helpers
+//////////
+
+function getFingerprint() {
+  return btoa([
+    navigator.userAgent,
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  ].join('|'));
+}
+
+function getCookie(name) {
+  const match = document.cookie.match(
+    new RegExp('(^| )' + name + '=([^;]+)')
+  );
+  return match ? match[2] : null;
+}
+
+function storageAvailable() {
+  try {
+    const key = '__storage_test__';
+    localStorage.setItem(key, key);
+    localStorage.removeItem(key);
+    return navigator.cookieEnabled;
+  } catch {
+    return false;
+  }
+}
+
+function markVoted(period) {
+  const data = btoa(JSON.stringify({
+    p: period.start,
+    f: getFingerprint()
+  }));
+  localStorage.setItem(VOTE_KEY, data);
+
+  const expires = new Date(period.end).toUTCString();
+  document.cookie =
+    `${VOTE_KEY}=${data}; expires=${expires}; path=/; SameSite=Lax`;
+}
+
+function hasVoted(period) {
+  try {
+    const ls = localStorage.getItem(VOTE_KEY);
+    const cookie = getCookie(VOTE_KEY);
+
+    if (!ls || !cookie || ls !== cookie) return false;
+
+    const data = JSON.parse(atob(ls));
+    
+    return (
+      data.p === period.start &&
+      data.f === getFingerprint()
+    );
+  } catch {
+    return false;
+  }
+}
+
+function getActiveVotingPeriod(periods, now) {
+  for (const [start, end] of periods) {
+    const startMs = new Date(start).getTime();
+    const endMs = new Date(end).getTime();
+
+    if (now >= startMs && now <= endMs) {
+      return { start, end };
+    }
+  }
+
+  return null;
+}
+
+//////////////
+// voting gate
+//////////////
+
+function votingGate() {
+  if (!storageAvailable()) {
+    showVotingState('Voting requires cookies and local storage.');
+    return false;
+  }
+
+  activePeriod = getActiveVotingPeriod(votingPeriods, pageLoadedAt);
+  
+  if (!activePeriod) {
+    showVotingState('Voting is currently closed.');
+    return false;
+  } 
+  
+  if (hasVoted(activePeriod)) {
+    showVotingState('You have already voted. Thank you for participating!');
+    return false;
+  }
+  
+  return true;
+}
+
+if (!votingGate()) throw new Error('Access Denied.');
+
 /////////////////////
 // create entry items
 /////////////////////
 
+const votingUI = document.getElementById('voting-ui');
 const listEl = document.getElementById('entry-list');
 const template = document.getElementById('entry-template');
 
@@ -34,6 +150,11 @@ entryItems.forEach((entry) => {
   item.dataset.id = entry.id;
   name.textContent = entry.name;
   listEl.appendChild(node);
+});
+  
+votingUI.style.visibility = 'visible';
+requestAnimationFrame(() => {
+  votingUI.style.opacity = '1';
 });
 
 /////////////////////
@@ -124,18 +245,41 @@ if (zipCode) {
 // form submission
 //////////////////
 
+//helper
+function canSubmitVote() {
+  if (!activePeriod) return false; //if in voting window
+  if (isSubmitting) return false; //submit lock
+  if (!storageAvailable()) return false; //double check
+  if (votingForm['phone-number']?.value) return false; //honeypot
+  if (Date.now() - pageLoadedAt < 3000) return false; //timing
+  return true;
+}
+
 votingForm.addEventListener('submit', async function (e) {
   e.preventDefault(); //stop page from reloading
 
   const anyRanked = document.querySelector('.entry-item.is-ranked');
   const loadingOverlay = document.getElementById('loading-overlay');
+  
+  if (!canSubmitVote()) {
+    showVotingState('We could not process your vote. Please try again.');
+    return;
+  }  
+  
+  //multi-tab lock
+  if (localStorage.getItem('csd-vote-lock')) {
+    showVotingState('Your vote has already been submitted.');
+    return false;
+  }  
 
   if (!anyRanked) {
     alert('You must rank at least one entry before submitting.');
     return;
   }
-
+  
+  votingForm.querySelector('button[type="submit"]').disabled = true;  
   loadingOverlay.classList.add('show'); //show loader
+  isSubmitting = true;
 
   //send POST to server
   try {
@@ -147,24 +291,31 @@ votingForm.addEventListener('submit', async function (e) {
       body: JSON.stringify({
         votes: voteResults,
         zip: zipCode ? zipCode.value.trim() : '',
+        token: runtimeToken
       }),
     });
 
     if (response.ok) {
-      showThankYou();
+      markVoted(activePeriod);
+      localStorage.setItem('csd-vote-lock', '1'); //multi-tab lock
+      showVotingState();
     } else {
       throw new Error('Server error');
     }
   } catch (error) {
+    isSubmitting = false;
     loadingOverlay.classList.remove('show');
     if (!testMode) alert('Connection error. Please try again.');
-    else showThankYou();
+    else {
+      markVoted(activePeriod);
+      showVotingState();
+    }
   }
 });
 
-///////////////////////////////
-// handle successful submission
-///////////////////////////////
+//////////////////////
+// handle voting state
+//////////////////////
 
 //helper
 function getNaturalHeight(el) {
@@ -186,18 +337,16 @@ function getNaturalHeight(el) {
   return h;
 }
 
-function showThankYou() {
+function showVotingState(message) {
   const app = document.getElementById('csd-voting-app');
   const votingUI = document.getElementById('voting-ui');
-  const thankYouUI = document.getElementById('thank-you-ui');
+  const votingStateUI = document.getElementById('voting-state-ui');
+  
+  if (message) votingStateUI.querySelector('h2').innerText = message;
 
-  //measure current height
   const startHeight = app.offsetHeight;
+  const targetHeight = getNaturalHeight(votingStateUI);
 
-  //measure thank-you natural height
-  const targetHeight = getNaturalHeight(thankYouUI);
-
-  //lock app height
   app.style.height = startHeight + 'px';
   app.style.transition = 'height 420ms cubic-bezier(0.2, 0.8, 0.2, 1)';
 
@@ -206,11 +355,11 @@ function showThankYou() {
 
   //swap content
   votingUI.remove();
-  thankYouUI.style.display = 'block';
+  votingStateUI.style.display = 'block';
 
   //fade in
   requestAnimationFrame(() => {
-    thankYouUI.style.opacity = '1';
+    votingStateUI.style.opacity = '1';
     app.style.height = targetHeight + 'px';
   });
 

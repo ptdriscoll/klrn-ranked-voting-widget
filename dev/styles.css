@@ -28,15 +28,18 @@
 }
 
 #csd-voting-app #voting-ui,
-#csd-voting-app #thank-you-ui {
+#csd-voting-app #voting-state-ui {
   margin: 0px auto;
 }
 
 #csd-voting-app #voting-ui {
   max-width: 500px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 300ms ease;
 }
 
-#csd-voting-app #thank-you-ui {
+#csd-voting-app #voting-state-ui {
   display: none;
   opacity: 0;
   transition: opacity 300ms ease;
@@ -178,8 +181,21 @@ drag-and-drop states
 }
 
 /* ==================================================
-zip code input
+phone and zip code inputs
 ================================================== */
+
+#csd-voting-app #voting-form {
+  position: relative;
+}
+
+#csd-voting-app .phone-input {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
 
 #csd-voting-app .zip-input {
   display: block;
@@ -328,10 +344,10 @@ loading overlay
 }
 
 /* ==================================================
-thank-you message
+voting state message
 ================================================== */
 
-#csd-voting-app .thank-you-message {
+#csd-voting-app .voting-state-message {
   width: 100%;
   margin: 0 auto;
   display: flex;
@@ -341,9 +357,9 @@ thank-you message
   color: rgba(255, 255, 255, 0.7);
 }
 
-#csd-voting-app .thank-you-message h2 {
+#csd-voting-app .voting-state-message h2 {
   margin: 80px 16px 92px;
-  line-height: 1.5;
+  line-height: 1.65;
   font-size: 1.6em;
   letter-spacing: 0.5px;
 }

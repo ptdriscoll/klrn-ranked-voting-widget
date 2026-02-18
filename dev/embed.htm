@@ -9,8 +9,9 @@
     ],
     "points": [16, 14, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
     "votingPeriods": [
-      ["2026-02-08", "2026-02-14"],
-      ["2026-02-15", "2026-02-21"]
+      ["2026-02-16 T 00:00:00 -06:00", "2026-02-22 T 23:59:59 -06:00"],
+      ["2026-03-09 T 00:00:00 -05:00", "2026-03-15 T 23:59:59 -05:00"],
+      ["2026-03-16 T 00:00:00 -05:00", "2026-03-22 T 23:59:59 -05:00"]
     ],
     "apiUrl": "/",
     "testMode": true
@@ -39,6 +40,15 @@
     <form id="voting-form" method="POST">
       <input
         type="text"
+        id="phone-number"
+        name="phone-number"
+        class="phone-input"
+        aria-hidden="true"
+        tabindex="-1"
+        autocomplete="off"
+      />
+      <input
+        type="text"
         id="zip-code"
         name="zip-code"
         class="zip-input"
@@ -53,12 +63,12 @@
   </div>
   <!-- end voting-ui -->
 
-  <div id="thank-you-ui">
-    <div class="thank-you-message">
+  <div id="voting-state-ui">
+    <div class="voting-state-message">
       <h2>Your votes are in. Thank you for participating!</h2>
     </div>
   </div>
-  <!-- end thank-you-ui -->
+  <!-- end voting-state-ui -->
 
   <div id="loading-overlay">
     <div class="loading-card">
