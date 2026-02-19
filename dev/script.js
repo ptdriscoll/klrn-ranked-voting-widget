@@ -212,7 +212,7 @@ function updateScores() {
   });
 
   voteResults = voteState;
-  console.log(voteResults);
+  //console.log(voteResults);
 }
 
 //////////////////////
@@ -247,7 +247,7 @@ if (zipCode) {
 
 //helper
 function canSubmitVote() {
-  if (!activePeriod) return false; //if in voting window
+  if (!activePeriod) return false; //if in voting period
   if (isSubmitting) return false; //submit lock
   if (!storageAvailable()) return false; //double check
   if (votingForm['phone-number']?.value) return false; //honeypot
@@ -280,7 +280,7 @@ votingForm.addEventListener('submit', async function (e) {
   votingForm.querySelector('button[type="submit"]').disabled = true;  
   loadingOverlay.classList.add('show'); //show loader
   isSubmitting = true;
-
+  
   //send POST to server
   try {
     const response = await fetch('submit_vote.php', {
