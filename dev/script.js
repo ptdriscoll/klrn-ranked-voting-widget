@@ -291,7 +291,8 @@ votingForm.addEventListener('submit', async function (e) {
       body: JSON.stringify({
         votes: voteResults,
         zip: zipCode ? zipCode.value.trim() : '',
-        token: runtimeToken
+        token: runtimeToken,
+        fingerprint: getFingerprint()
       }),
     });
 
