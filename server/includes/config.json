@@ -1,22 +1,17 @@
-{
-  "entries": [
-    { "id": 1, "name": "Band Name One" },
-    { "id": 2, "name": "Solo Artist Two" },
-    { "id": 3, "name": "Duo Group Three" },
-    { "id": 4, "name": "Band Name Four" },
-    { "id": 5, "name": "Artist Name Five" }
-  ],
-  "points": [16, 14, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
-  "votingPeriods": [
-    {
-      "id": 1,
-      "start": "2026-02-16 00:00:00",
-      "end": "2026-02-22 23:59:59"
-    },
-    {
-      "id": 2,
-      "start": "2026-03-09 00:00:00",
-      "end": "2026-03-15 23:59:59"
-    }
-  ]
-}
+  {
+    "entries": [
+      { "id": 1, "name": "Band Name One" },
+      { "id": 2, "name": "Solo Artist Two" },
+      { "id": 3, "name": "Duo Group Three" },
+      { "id": 4, "name": "Band Name Four" },
+      { "id": 5, "name": "Artist Name Five" }
+    ],
+    "points": [16, 14, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+    "votingPeriods": [
+      ["2026-02-16 T 00:00:00 -06:00", "2026-02-22 T 23:59:59 -06:00"],
+      ["2026-03-09 T 00:00:00 -05:00", "2026-03-15 T 23:59:59 -05:00"],
+      ["2026-03-16 T 00:00:00 -05:00", "2026-03-22 T 23:59:59 -05:00"]
+    ],
+    "apiUrl": "/",
+    "testMode": true
+  }
