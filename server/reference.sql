@@ -1,0 +1,2 @@
+-- Reference SQL for schema and queries
+-- Not executed directly by the application
