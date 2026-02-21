@@ -1,5 +1,5 @@
 -- Reference SQL for schema and queries
--- Not executed directly by the application
+-- This file is not executed directly by the application
 
 CREATE TABLE vote_sessions (
     id INT AUTO_INCREMENT PRIMARY KEY,
