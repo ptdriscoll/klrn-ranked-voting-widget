@@ -86,28 +86,29 @@ foreach ($votes as $vote) {
 //get ip, IPv4 or IPv6
 $ip_address = inet_pton($_SERVER['REMOTE_ADDR']); 
 
-//prepare to assign points by deduping $vote, keeping highest ranks
+//dedupe submitted votes, keeping highest ranks
 $voteLookup = [];
-
 foreach ($votes as $index => $vote) {
   $id = $vote['id'];
-  if (!isset($voteLookup[$id])) {
-    $voteLookup[$id] = $index;
-  } else {
-    // duplicate entry → keep highest ranking (lowest index)
-    $voteLookup[$id] = min($voteLookup[$id], $index);
+
+  //keep highest ranking (lowest index) if duplicates 
+  if (!isset($voteLookup[$id]) || $index < $voteLookup[$id]['index']) {
+    $voteLookup[$id] = [
+      'voted' => $vote['voted'],
+      'index' => $index
+    ];
   }
 }
 
-//assign points
+//loolp through config entries and assign submitted points
 $rankedVotes = [];
 $unrankedPoints = end($pointsLadder);
 
 foreach ($configVotes as $entry) {
   $entryId = $entry['id'];
 
-  if (isset($voteLookup[$entryId])) {
-    $rankIndex = $voteLookup[$entryId];
+  if (isset($voteLookup[$entryId]) && !empty($voteLookup[$entryId]['voted'])) {
+    $rankIndex = $voteLookup[$entryId]['index'];
     $points = $pointsLadder[$rankIndex] ?? $unrankedPoints;
   } else {
     $points = $unrankedPoints;
@@ -115,7 +116,7 @@ foreach ($configVotes as $entry) {
 
   $rankedVotes[] = [
     'entry_id' => $entryId,
-    'points' => $points,
+    'points' => $points
   ];
 }
 
