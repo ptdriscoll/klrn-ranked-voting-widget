@@ -9,6 +9,5 @@ $dbname = $config['db_name'];
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) die('Connection failed: ' . $conn->connect_error);
 
-//set time zone to Central Standard Time for current session
-if (!isset($config)) $config = require(__DIR__ . '/../config.php');
-$conn->query("SET time_zone = '{$config['timezone']}'");
+//set session timezone to UTC
+$conn->query("SET time_zone = '{$config['db_timezone']}'");

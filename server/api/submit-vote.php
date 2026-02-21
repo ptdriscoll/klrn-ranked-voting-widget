@@ -8,9 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   exit;
 }
 
-//load config, set timezone and connect db
-if (!isset($config)) $config = require(__DIR__ . '/../config.php');
-date_default_timezone_set($config['timezone']);
+//load config, and connect db
 require('../includes/database-conn.php');
 
 //parse incoming JSON
@@ -49,7 +47,8 @@ foreach ($votingPeriods as &$period) {
 unset($period);
 
 //validate that a voting periord is active
-$now = new DateTime();
+if (!isset($config)) $config = require(__DIR__ . '/../config.php');
+$now = new DateTime('now', new DateTimeZone($config['local_timezone']));
 $activePeriod = null;
 
 foreach ($votingPeriods as $period) {

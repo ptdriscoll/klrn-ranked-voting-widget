@@ -4,7 +4,8 @@ return array(
   'db_user' => 'root',
   'db_pass' => '',
   'db_name' => 'klrn_city_showdown',
-  'timezone' => 'America/Chicago',  
+  'db_timezone' => '+00:00', 
+  'local_timezone' => 'America/Chicago',
 	'users' => ['dev1' => '123', 
               'dev2' => '234']
 );
