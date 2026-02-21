@@ -1,21 +1,25 @@
 <?php
 header('Content-Type: application/json');
 
+//validate that POST is used 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
-    exit;
+  http_response_code(405);
+  echo json_encode(['error' => 'Method not allowed']);
+  exit;
 }
+
+//load config, set timezone and connect db
+if (!isset($config)) $config = require(__DIR__ . '/../config.php');
+date_default_timezone_set($config['timezone']);
+require('../includes/database-conn.php');
 
 //parse incoming JSON
 $data = json_decode(file_get_contents('php://input'), true);
-
 if (!$data || !isset($data['votes'], $data['token'])) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid request']);
-    exit;
+  http_response_code(400);
+  echo json_encode(['error' => 'Invalid request']);
+  exit;
 }
-
 $votes = $data['votes']; //array of {id: int, voted: bool}
 $zip = substr($data['zip'] ?? '', 0, 5);
 $token = $data['token'];
@@ -25,109 +29,139 @@ $fingerprint = $data['fingerprint'] ?? '';
 $token_hash = hash('sha256', $token);
 $fingerprint_hash = hash('sha256', $fingerprint);
 
-//load config, db connection, and setting of timezone to 'America/Chicago'
-$config = require(__DIR__ . '/../config.php');
-require('../includes/database-conn.php');
-
-//check if token already exists (enforce one vote per token)
-$stmt = $conn->prepare("SELECT id FROM vote_sessions WHERE token_hash = ?");
-$stmt->bind_param('s', $token_hash);
-$stmt->execute();
-$stmt->store_result();
-
-if ($stmt->num_rows > 0) {
-    http_response_code(409);
-    echo json_encode(['error' => 'Token already used']);
-    exit;
-}
-$stmt->close();
-
-//parse config.json 
+//parse server config.json 
 $configJson = file_get_contents(__DIR__ . '/../includes/config.json');
 $configData = json_decode($configJson, true);
+if (!$configData || !isset($configData['entries'], $configData['points'], $configData['votingPeriods'])) {
+  http_response_code(500);
+  echo json_encode(['error' => 'Server configuration error']);
+  exit;
+}
 $configVotes = $configData['entries']; //array of {id: int, voted: bool}
 $pointsLadder = $configData['points'];
 $votingPeriods = $configData['votingPeriods']; // array of arrays
 
-//check that a valid voting perior is active
+//remove spaces in $votingPeriods string dates
+foreach ($votingPeriods as &$period) { 
+  $period[0] = str_replace(' ', '', $period[0]);
+  $period[1] = str_replace(' ', '', $period[1]);
+}
+unset($period);
+
+//validate that a voting periord is active
 $now = new DateTime();
 $activePeriod = null;
 
 foreach ($votingPeriods as $period) {
-    $startStr = str_replace(' ', '', $period[0]);
-    $endStr   = str_replace(' ', '', $period[1]);
-    $start = new DateTime($startStr);
-    $end   = new DateTime($endStr);
-
-    if ($now >= $start && $now <= $end) {
-        $activePeriod = [
-            'start' => $start,
-            'end' => $end
-        ];
-        break;
-    }
+  [$startStr, $endStr] = $period;
+  $start = new DateTime($startStr);
+  $end   = new DateTime($endStr);
+  
+  if ($now >= $start && $now <= $end) {
+    $activePeriod = [
+      'start' => $start,
+      'end' => $end
+    ];
+    break;
+  }
 }
 
 if (!$activePeriod) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Voting is not currently open.']);
-    exit;
+  http_response_code(403);
+  echo json_encode(['error' => 'Voting is not currently open.']);
+  exit;
 }
 
 //validate that vote IDs exist in config.json
 $validEntryIds = array_column($configVotes, 'id');
+$validLookup = array_flip($validEntryIds);
+
 foreach ($votes as $vote) {
-    if (!in_array($vote['id'], $validEntryIds, true)) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid entry']);
-        exit;
-    }
+  if (!isset($validLookup[$vote['id']])) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid entry']);
+    exit;
+  }
 }
 
 //get ip, IPv4 or IPv6
 $ip_address = inet_pton($_SERVER['REMOTE_ADDR']); 
 
-//insert vote session
-$stmt = $conn->prepare("
-  INSERT INTO vote_sessions (token_hash, zip, ip_address, fingerprint_hash) 
-  VALUES (?, ?, ?, ?)");
-$stmt->bind_param('ssss', $token_hash, $zip, $ip_address, $fingerprint_hash);
+//prepare to assign points by deduping $vote, keeping highest ranks
+$voteLookup = [];
 
-//execute, and handle duplicate token race condition
-if (!$stmt->execute()) {
-    if ($conn->errno === 1062) {
-        http_response_code(409);
-        echo json_encode(['error' => 'Token already used']);
-        exit;
-    }
+foreach ($votes as $index => $vote) {
+  $id = $vote['id'];
+  if (!isset($voteLookup[$id])) {
+    $voteLookup[$id] = $index;
+  } else {
+    // duplicate entry → keep highest ranking (lowest index)
+    $voteLookup[$id] = min($voteLookup[$id], $index);
+  }
 }
-
-$vote_session_id = $stmt->insert_id;
-$stmt->close();
 
 //assign points
 $rankedVotes = [];
-$unrankedPoints = $pointsLadder[count($pointsLadder) - 1]; //points for false/unranked entries
+$unrankedPoints = end($pointsLadder);
 
-foreach ($votes as $index => $vote) {
-    $points = $vote['voted'] ? ($pointsLadder[$index] ?? $unrankedPoints) : $unrankedPoints;
-    $rankedVotes[] = [
-        'entry_id' => $vote['id'],
-        'points' => $points,
-    ];
+foreach ($configVotes as $entry) {
+  $entryId = $entry['id'];
+
+  if (isset($voteLookup[$entryId])) {
+    $rankIndex = $voteLookup[$entryId];
+    $points = $pointsLadder[$rankIndex] ?? $unrankedPoints;
+  } else {
+    $points = $unrankedPoints;
+  }
+
+  $rankedVotes[] = [
+    'entry_id' => $entryId,
+    'points' => $points,
+  ];
 }
 
-//insert vote results
-$stmt = $conn->prepare("
-  INSERT INTO vote_results (vote_session_id, entry_id, points) 
-  VALUES (?, ?, ?)");
+$conn->begin_transaction();
+try {
+  //insert vote session
+  $stmt = $conn->prepare("
+    INSERT INTO vote_sessions (token_hash, zip, ip_address, fingerprint_hash) 
+    VALUES (?, ?, ?, ?)");
+  $stmt->bind_param('ssss', $token_hash, $zip, $ip_address, $fingerprint_hash);
+  
+  if (!$stmt->execute()) {
+    if ($conn->errno === 1062) throw new Exception('Duplicate token');
+    throw new Exception('Session insert failed');
+  }
+  
+  $vote_session_id = $stmt->insert_id;
+  $stmt->close();
 
-foreach ($rankedVotes as $v) {
+  //insert vote results
+  $stmt = $conn->prepare("
+    INSERT INTO vote_results (vote_session_id, entry_id, points) 
+    VALUES (?, ?, ?)");
+
+  foreach ($rankedVotes as $v) {
     $stmt->bind_param('iii', $vote_session_id, $v['entry_id'], $v['points']);
-    $stmt->execute();
+    if (!$stmt->execute()) throw new Exception('Vote insert failed');
+  }  
+  
+  $stmt->close();
+  $conn->commit();
+} 
+catch (Exception $e) {
+  $conn->rollback();
+  error_log('Vote submission error: ' . $e->getMessage());
+  
+  if ($e->getMessage() === 'Duplicate token') {
+    http_response_code(409);
+    echo json_encode(['error' => 'Token already used']);
+  } else {
+    http_response_code(500);
+    echo json_encode(['error' => 'Vote could not be saved']);
+  }
+  exit;
 }
-$stmt->close();
-$conn->close();
 
 //respond success
 echo json_encode(['success' => true]);
