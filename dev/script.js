@@ -299,6 +299,7 @@ votingForm.addEventListener('submit', async function (e) {
     if (response.ok) {
       markVoted(activePeriod);
       localStorage.setItem('csd-vote-lock', '1'); //multi-tab lock
+      loadingOverlay.classList.remove('show');
       showVotingState();
     } else {
       throw new Error('Server error');
