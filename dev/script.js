@@ -18,6 +18,7 @@ const csdConfig = JSON.parse(configEl.textContent);
 const entryItems = csdConfig.entries;
 const pointsLadder = csdConfig.points;
 const testMode = csdConfig.testMode;
+const apiUrl = csdConfig.apiUrl;
 const votingPeriods = csdConfig.votingPeriods.map((subArray) =>
   subArray.map((dateStr) => dateStr.replace(/\s/g, '')),
 );
@@ -27,10 +28,7 @@ Object.freeze(csdConfig);
 Object.freeze(entryItems);
 Object.freeze(pointsLadder);
 Object.freeze(votingPeriods);
-
-//set form's action path
-const votingForm = document.getElementById('voting-form');
-votingForm.action = csdConfig.apiUrl;
+Object.freeze(apiUrl);
 
 //set results container
 let voteResults = [];
@@ -255,6 +253,8 @@ function canSubmitVote() {
   return true;
 }
 
+const votingForm = document.getElementById('voting-form');
+
 votingForm.addEventListener('submit', async function (e) {
   e.preventDefault(); //stop page from reloading
 
@@ -283,7 +283,7 @@ votingForm.addEventListener('submit', async function (e) {
   
   //send POST to server
   try {
-    const response = await fetch('submit_vote.php', {
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
