@@ -57,3 +57,26 @@ INSERT INTO vote_results (vote_session_id, entry_id, points) VALUES
 (1, 5, 12),
 (1, 1, 1),
 (1, 3, 1);
+
+--------------------------------------------------
+-- select
+--------------------------------------------------
+
+SELECT entry_id, SUM(points) AS count 
+FROM vote_results
+GROUP BY entry_id
+ORDER BY entry_id
+
+SELECT 
+    vs.id AS session_id,
+    vs.created_at,
+    vs.zip,
+    vs.ip_address,
+    vs.fingerprint_hash,
+    vr.entry_id,
+    vr.points
+FROM vote_sessions vs
+JOIN vote_results vr 
+    ON vs.id = vr.vote_session_id
+ORDER BY vs.id, vr.entry_id;
+
