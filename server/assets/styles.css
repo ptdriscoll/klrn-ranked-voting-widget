@@ -1,0 +1,139 @@
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+body {
+  background-color: #f7f9f9;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #747474;
+  font-size: 16px;
+  line-height: 1.625;
+}
+.center {
+  text-align: center;
+}
+.error {
+  color: #ee0505;
+}
+h1 {
+  font-size: 2rem;
+}
+article,
+.container {
+  max-width: 800px;
+  padding: 0 1rem;
+}
+article {
+  min-height: 80%;
+  margin: 3rem auto;
+}
+
+/*================================================== 
+Header
+==================================================*/
+header .container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+header {
+  background: #2b5998 url('img/KLRN_banner_background.png') no-repeat center
+    center;
+  height: 80px;
+  background-size: auto 75px;
+  border-bottom-width: 3px;
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.28);
+}
+.mobile header {
+  height: 76px;
+}
+#klrn_logo {
+  margin-top: 6px;
+  border: none;
+}
+
+/*================================================== 
+Login
+==================================================*/
+#login {
+  margin-top: 2.1rem;
+}
+form {
+  max-width: 400px;
+  margin: 0 auto;
+}
+input,
+button {
+  display: inline-block;
+  font-size: 1rem;
+  line-height: 1.625;
+  width: 100%;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+  height: 3rem;
+}
+input {
+  width: 100%;
+  border: 1px solid #ddd;
+  box-shadow: 0px 0px 5px #ddd;
+  transition: 0.3s;
+  outline: none;
+}
+input:focus {
+  border: 2px solid #799fd4;
+}
+button {
+  opacity: 0.85;
+  text-decoration: none; /* remove underline from anchors */
+  background-color: #2b5998;
+  color: white;
+  cursor: pointer;
+  border: none;
+}
+button:hover {
+  opacity: 1;
+}
+
+/*================================================== 
+Table
+==================================================*/
+#results {
+  max-width: 800px;
+  margin: 1.6rem auto 0;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+tr {
+  height: 3rem;
+  border-bottom: 2px solid #ddd;
+}
+tr:nth-child(even) {
+  background-color: #fff;
+}
+th {
+  cursor: pointer;
+}
+th:hover {
+  color: #ee0505;
+}
+th,
+td {
+  padding: 0 0.5rem;
+}
+th {
+  text-align: left;
+}
+
+/*================================================== 
+Download button
+==================================================*/
+#download {
+  margin: 3rem auto 0;
+}
