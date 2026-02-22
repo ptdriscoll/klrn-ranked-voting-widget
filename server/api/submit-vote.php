@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-//load config, and connect db
+//load config.php as $config, and connect db
 require('../includes/database-conn.php');
 
 //parse incoming JSON
