@@ -37,7 +37,7 @@ $output = fopen('php://output', 'w');
 fputcsv($output, $header_row);
 
 //get data
-$sql = "
+$sql = '
     SELECT 
         vs.id AS session_id,
         vs.created_at,
@@ -49,8 +49,8 @@ $sql = "
     FROM vote_sessions vs
     JOIN vote_results vr 
         ON vs.id = vr.vote_session_id
-    ORDER BY vs.created_at, vr.entry_id
-";
+    ORDER BY vs.id, vr.entry_id;
+';
 
 $result = $conn->query($sql);
 
