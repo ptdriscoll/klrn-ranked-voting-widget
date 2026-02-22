@@ -79,4 +79,3 @@ FROM vote_sessions vs
 JOIN vote_results vr 
     ON vs.id = vr.vote_session_id
 ORDER BY vs.id, vr.entry_id;
-
