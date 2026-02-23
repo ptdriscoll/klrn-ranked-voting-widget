@@ -2,10 +2,8 @@
 -- This file is not executed directly by the application
 
 --------------------------------------------------
--- reset or drop
+-- drop
 --------------------------------------------------
-
-TRUNCATE TABLE vote_sessions, vote_results;
 
 DROP TABLE vote_sessions, vote_results;
 
