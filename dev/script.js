@@ -75,6 +75,7 @@ function markVoted(period) {
 }
 
 function hasVoted(period) {
+  return false; //allow multiple votes for testing
   try {
     const ls = localStorage.getItem(VOTE_KEY);
     const cookie = getCookie(VOTE_KEY);
@@ -169,13 +170,13 @@ Sortable.create(listEl, {
 
   //auto scroll while dragging
   scroll: true,
-  scrollSensitivity: 120,
-  scrollSpeed: 16,
+  scrollSensitivity: 150, //pixels from edge before scroll triggers
+  scrollSpeed: 8,
 
   //mobile touch behavior, to prevent accidental scroll grabs
-  delay: 100,
+  delay: 80,
   delayOnTouchOnly: true,
-  touchStartThreshold: 5,
+  touchStartThreshold: 30,
 
   onEnd(evt) {
     evt.item.classList.add('is-ranked');
@@ -267,10 +268,10 @@ votingForm.addEventListener('submit', async function (e) {
   }  
   
   //multi-tab lock
-  if (localStorage.getItem('csd-vote-lock')) {
-    showVotingState('Your vote has already been submitted.');
-    return false;
-  }  
+  //if (localStorage.getItem('csd-vote-lock')) {
+  //  showVotingState('Your vote has already been submitted.');
+  //  return false;
+  //}  
 
   if (!anyRanked) {
     alert('You must rank at least one entry before submitting.');
