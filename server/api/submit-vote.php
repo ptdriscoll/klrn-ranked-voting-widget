@@ -1,4 +1,32 @@
 <?php
+//set allowed origins
+$isLive = ($_SERVER['HTTP_HOST'] === 'pbs.klrn.org');
+if ($isLive) $allowedOrigins = ['https://www.klrn.org'];
+else $allowedOrigins = ['http://localhost', 'http://127.0.0.1'];
+
+//add CORS headers
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+if (in_array($origin, $allowedOrigins, true)) {
+    header("Access-Control-Allow-Origin: $origin");
+    header('Vary: Origin');
+} else {
+    http_response_code(403);
+    echo json_encode(['error' => 'Origin not allowed']);
+    exit;
+}
+
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Max-Age: 86400');
+
+//handle preflight
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
+//add response type
 header('Content-Type: application/json');
 
 //validate that POST is used 
@@ -163,6 +191,6 @@ catch (Exception $e) {
     exit;
 }
 
-//respond success
+//respond with success
 echo json_encode(['success' => true]);
 exit;
