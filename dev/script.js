@@ -71,23 +71,18 @@ function markVoted(period) {
 
   const expires = new Date(period.end).toUTCString();
   document.cookie =
-    `${VOTE_KEY}=${data}; expires=${expires}; path=/; SameSite=Lax`;
+    `${VOTE_KEY}=${data}; expires=${expires}; path=/; SameSite=None; Secure`;
 }
 
 function hasVoted(period) {
-  return false; //allow multiple votes for testing
   try {
     const ls = localStorage.getItem(VOTE_KEY);
-    const cookie = getCookie(VOTE_KEY);
-
-    if (!ls || !cookie || ls !== cookie) return false;
-
-    const data = JSON.parse(atob(ls));
+    const cookie = getCookie(VOTE_KEY);    
     
-    return (
-      data.p === period.start &&
-      data.f === getFingerprint()
-    );
+    if (ls !== cookie) return true; //a mismatch or one missing = voted
+
+    const data = JSON.parse(atob(ls)); //throws if ls is null
+    return data.p === period.start && data.f === getFingerprint();
   } catch {
     return false;
   }
@@ -268,10 +263,10 @@ votingForm.addEventListener('submit', async function (e) {
   }  
   
   //multi-tab lock
-  //if (localStorage.getItem('csd-vote-lock')) {
-  //  showVotingState('Your vote has already been submitted.');
-  //  return false;
-  //}  
+  if (localStorage.getItem('csd-vote-lock')) {
+    showVotingState('Your vote has already been submitted.');
+    return false;
+  }  
 
   if (!anyRanked) {
     alert('You must rank at least one entry before submitting.');
