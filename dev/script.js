@@ -40,6 +40,11 @@ let voteResults = [];
 function getFingerprint() {
   return btoa([
     navigator.userAgent,
+    navigator.language,
+    navigator.platform,
+    screen.width + 'x' + screen.height,
+    screen.colorDepth,
+    navigator.hardwareConcurrency || '',
     Intl.DateTimeFormat().resolvedOptions().timeZone
   ].join('|'));
 }
