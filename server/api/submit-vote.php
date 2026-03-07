@@ -148,13 +148,91 @@ foreach ($configVotes as $entry) {
     ];
 }
 
+//create vote signature (ordered entry IDs)
+$signatureParts = [];
+foreach ($rankedVotes as $v) {
+    $signatureParts[] = $v['entry_id'];
+}
+$vote_signature = implode('-', $signatureParts);
+
+//check for suspicios behaviors
+$stmt = $conn->prepare("
+SELECT
+    SUM(CASE 
+        WHEN ip_address = ? 
+        AND fingerprint_hash = ?
+        AND created_at > (NOW() - INTERVAL 3 SECOND)
+        THEN 1 ELSE 0 END) AS fast_count,
+
+    SUM(CASE 
+        WHEN ip_address = ?
+        AND fingerprint_hash = ?
+        AND created_at > (NOW() - INTERVAL 5 MINUTE)
+        THEN 1 ELSE 0 END) AS repeat_count,
+
+    SUM(CASE 
+        WHEN vote_signature = ?
+        AND created_at > (NOW() - INTERVAL 5 MINUTE)
+        THEN 1 ELSE 0 END) AS signature_count
+
+FROM vote_sessions
+WHERE created_at > (NOW() - INTERVAL 5 MINUTE)
+");
+
+$stmt->bind_param(
+    'sssss',
+    $ip_address,
+    $fingerprint_hash,
+    $ip_address,
+    $fingerprint_hash,
+    $vote_signature
+);
+
+$stmt->execute();
+$stmt->bind_result($fast_count, $repeat_count, $signature_count);
+$stmt->fetch();
+$stmt->close();
+
+//build suspicion score
+$suspicion_score = 0;
+$suspicion_flags = [];
+
+if ($fast_count > 0) {
+    $suspicion_score += 3;
+    $suspicion_flags[] = 'TOO-FAST';
+}
+
+if ($repeat_count >= 5) {
+    $suspicion_score += 4;
+    $suspicion_flags[] = 'REPEATED';
+}
+
+if ($signature_count >= 2) {
+    $suspicion_score += 3;
+    $suspicion_flags[] = 'SAME-SIG';
+}
+
+$suspicion_flags = implode(', ', $suspicion_flags);
+
 $conn->begin_transaction();
 try {
     //insert vote session
     $stmt = $conn->prepare("
-        INSERT INTO vote_sessions (token_hash, zip, ip_address, fingerprint_hash) 
-        VALUES (?, ?, ?, ?)");
-    $stmt->bind_param('ssss', $token_hash, $zip, $ip_address, $fingerprint_hash);
+        INSERT INTO vote_sessions 
+        (token_hash, zip, ip_address, fingerprint_hash, vote_signature, suspicion_score, suspicion_flags) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ");
+        
+    $stmt->bind_param(
+        'sssssis',
+        $token_hash,
+        $zip,
+        $ip_address,
+        $fingerprint_hash,
+        $vote_signature,
+        $suspicion_score,
+        $suspicion_flags
+    );
     
     if (!$stmt->execute()) {
         if ($conn->errno === 1062) throw new Exception('Duplicate token');
