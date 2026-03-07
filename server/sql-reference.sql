@@ -17,8 +17,15 @@ CREATE TABLE vote_sessions (
     zip VARCHAR(10),
     ip_address VARBINARY(16),
     fingerprint_hash CHAR(64),
+    vote_signature VARCHAR(255),
+    suspicion_score INT DEFAULT 0,
+    suspicion_flags VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(token_hash)
+    UNIQUE(token_hash),
+    INDEX(ip_address),
+    INDEX(fingerprint_hash),
+    INDEX(vote_signature),
+    INDEX(created_at)
 );
 
 CREATE TABLE vote_results (
