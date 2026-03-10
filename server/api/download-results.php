@@ -30,7 +30,7 @@ $header_row = ['Date and Time'];
 foreach ($contestants_arr as $key => $val) {
     $header_row[] = $key . ' - ' . $val;
 }
-array_push($header_row, 'Zip Code', 'IP', 'Fingerprint');
+array_push($header_row, 'Zip Code', 'Suspicion Score', 'Flags', 'IP', 'Fingerprint');
 
 //output CSV header
 $output = fopen('php://output', 'w');
@@ -44,6 +44,8 @@ $sql = '
         vs.zip,
         vs.ip_address,
         vs.fingerprint_hash,
+        vs.suspicion_score,
+        vs.suspicion_flags,
         vr.entry_id,
         vr.points
     FROM vote_sessions vs
@@ -72,6 +74,8 @@ while ($row = $result->fetch_assoc()) {
         $session = [
             'created_at' => $row['created_at'],
             'zip' => $row['zip'],
+            'score' => $row['suspicion_score'],
+            'flags' => $row['suspicion_flags'],
             'ip' => inet_ntop($row['ip_address']),
             'fingerprint' => $row['fingerprint_hash'],
             'points' => []
@@ -104,6 +108,8 @@ function outputSessionRow($session, $contestants_arr, $output, $config)
     }
 
     $row[] = $session['zip'];
+    $row[] = $session['score'];
+    $row[] = $session['flags'];
     $row[] = $session['ip'];
     $row[] = $session['fingerprint'];
     
