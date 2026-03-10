@@ -5,7 +5,7 @@
 -- drop
 --------------------------------------------------
 
-DROP TABLE vote_sessions, vote_results;
+DROP TABLE vote_results, vote_sessions;
 
 --------------------------------------------------
 -- create
@@ -46,25 +46,27 @@ CREATE TABLE vote_results (
 --------------------------------------------------
 
 INSERT INTO vote_sessions
-(token_hash, zip, ip_address, fingerprint_hash, created_at)
+(token_hash, zip, ip_address, fingerprint_hash, vote_signature, suspicion_score, suspicion_flags)
 VALUES
 (
   'abc',
   '78247',
-  '192.168.1.100',
-  'xyz',
-  '2026-02-17 14:23:11'
+  INET6_ATON('192.168.1.100'),
+  'xyz',  
+  '16-14-12-10-9',
+  0,
+  ''  
 );
 
 INSERT INTO vote_results (vote_session_id, entry_id, points) VALUES
 (1, 4, 16),
 (1, 2, 14),
 (1, 5, 12),
-(1, 1, 1),
-(1, 3, 1);
+(1, 1, 10),
+(1, 3, 9);
 
 --------------------------------------------------
--- select
+-- select totals
 --------------------------------------------------
 
 SELECT entry_id, SUM(points) AS count 
@@ -72,10 +74,16 @@ FROM vote_results
 GROUP BY entry_id
 ORDER BY entry_id
 
+--------------------------------------------------
+-- select rows for csv export
+--------------------------------------------------
+
 SELECT 
     vs.id AS session_id,
     vs.created_at,
     vs.zip,
+    vs.suspicion_score,
+    vs.suspicion_flags,    
     vs.ip_address,
     vs.fingerprint_hash,
     vr.entry_id,
@@ -84,3 +92,28 @@ FROM vote_sessions vs
 JOIN vote_results vr 
     ON vs.id = vr.vote_session_id
 ORDER BY vs.id, vr.entry_id;
+
+--------------------------------------------------
+-- select data for suspicion scoring
+--------------------------------------------------
+
+SELECT
+    SUM(CASE 
+        WHEN ip_address = ?
+        AND fingerprint_hash = ?
+        AND created_at > (NOW() - INTERVAL 3 SECOND)
+        THEN 1 ELSE 0 END) AS fast_count,
+
+    SUM(CASE 
+        WHEN ip_address = ?
+        AND fingerprint_hash = ?
+        AND created_at > (NOW() - INTERVAL 5 MINUTE)
+        THEN 1 ELSE 0 END) AS repeat_count,
+
+    SUM(CASE 
+        WHEN vote_signature = ?
+        AND created_at > (NOW() - INTERVAL 5 MINUTE)
+        THEN 1 ELSE 0 END) AS signature_count
+
+FROM vote_sessions
+WHERE created_at > (NOW() - INTERVAL 5 MINUTE);
