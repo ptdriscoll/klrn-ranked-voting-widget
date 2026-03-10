@@ -151,7 +151,7 @@ foreach ($configVotes as $entry) {
 //create vote signature (ordered entry IDs)
 $signatureParts = [];
 foreach ($rankedVotes as $v) {
-    $signatureParts[] = $v['entry_id'];
+    $signatureParts[] = $v['points'];
 }
 $vote_signature = implode('-', $signatureParts);
 
