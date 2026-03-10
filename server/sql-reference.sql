@@ -5,7 +5,7 @@
 -- drop
 --------------------------------------------------
 
-DROP TABLE vote_results, vote_sessions;
+DROP TABLE IF EXISTS vote_results, vote_sessions;
 
 --------------------------------------------------
 -- create
