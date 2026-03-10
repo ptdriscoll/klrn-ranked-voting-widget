@@ -202,7 +202,7 @@ if ($fast_count > 0) {
     $suspicion_flags[] = 'TOO-FAST';
 }
 
-if ($repeat_count >= 5) {
+if ($repeat_count >= 4) {
     $suspicion_score += 4;
     $suspicion_flags[] = 'REPEATED';
 }
