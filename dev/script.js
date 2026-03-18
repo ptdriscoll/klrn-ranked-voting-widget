@@ -6,6 +6,7 @@ import Sortable from './vendor/sortable.esm.js';
 
 //set user vote tracking
 const VOTE_KEY = 'csd-uv';
+const LOCK_KEY = 'csd-vote-lock';
 const pageLoadedAt = Date.now();
 const runtimeToken = crypto.randomUUID(); 
 let activePeriod = null;
@@ -81,22 +82,32 @@ function markVoted(period) {
 
 function hasVoted(period) {
   try {
+    //get current vote data
     const ls = localStorage.getItem(VOTE_KEY);
     const cookie = getCookie(VOTE_KEY);
 
+    //parse data if available
     const lsData = ls ? JSON.parse(atob(ls)) : null;
     const cookieData = cookie ? JSON.parse(atob(cookie)) : null;
 
+    //check if vote is for the current period
     const lsCurrent = lsData && lsData.p === period.start;
     const cookieCurrent = cookieData && cookieData.p === period.start;
-    
-    //clean stale localStorage
-    if (!lsCurrent && ls) localStorage.removeItem(VOTE_KEY);
 
-    //any current voting period = has voted
-    return lsCurrent || cookieCurrent;
+    //clean stale localStorage data
+    if (!lsCurrent) {
+      localStorage.removeItem(VOTE_KEY);
+      localStorage.removeItem(LOCK_KEY);
+    }
+
+    //any vote evidence for current period counts as has voted
+    if (lsCurrent || cookieCurrent) return true;
+
+    //no valid vote data for this period
+    return false;
 
   } catch {
+    //if parsing fails, treat as not voted
     return false;
   }
 }
@@ -276,7 +287,7 @@ votingForm.addEventListener('submit', async function (e) {
   }  
   
   //multi-tab lock
-  if (localStorage.getItem('csd-vote-lock')) {
+  if (localStorage.getItem(LOCK_KEY)) {
     showVotingState('Your vote has already been submitted.');
     return false;
   }  
@@ -307,7 +318,7 @@ votingForm.addEventListener('submit', async function (e) {
 
     if (response.ok) {
       markVoted(activePeriod);
-      localStorage.setItem('csd-vote-lock', '1'); //multi-tab lock
+      localStorage.setItem(LOCK_KEY, '1'); //multi-tab lock
       loadingOverlay.classList.remove('show');
       showVotingState();
     } else {
