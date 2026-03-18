@@ -82,12 +82,20 @@ function markVoted(period) {
 function hasVoted(period) {
   try {
     const ls = localStorage.getItem(VOTE_KEY);
-    const cookie = getCookie(VOTE_KEY);    
-    
-    if (ls !== cookie) return true; //a mismatch or one missing = voted
+    const cookie = getCookie(VOTE_KEY);
 
-    const data = JSON.parse(atob(ls)); //throws if ls is null
-    return data.p === period.start && data.f === getFingerprint();
+    const lsData = ls ? JSON.parse(atob(ls)) : null;
+    const cookieData = cookie ? JSON.parse(atob(cookie)) : null;
+
+    const lsCurrent = lsData && lsData.p === period.start;
+    const cookieCurrent = cookieData && cookieData.p === period.start;
+    
+    //clean stale localStorage
+    if (!lsCurrent && ls) localStorage.removeItem(VOTE_KEY);
+
+    //any current voting period = has voted
+    return lsCurrent || cookieCurrent;
+
   } catch {
     return false;
   }
