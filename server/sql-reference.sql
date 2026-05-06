@@ -86,6 +86,7 @@ SELECT
     vs.suspicion_flags,    
     vs.ip_address,
     vs.fingerprint_hash,
+    vs.vote_signature,
     vr.entry_id,
     vr.points
 FROM vote_sessions vs
