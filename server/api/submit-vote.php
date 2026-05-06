@@ -148,11 +148,14 @@ foreach ($configVotes as $entry) {
     ];
 }
 
-//create vote signature (ordered entry IDs)
+//create vote signature (ordered points)
 $signatureParts = [];
+$padWidth = strlen((string) max($pointsLadder));
+
 foreach ($rankedVotes as $v) {
-    $signatureParts[] = $v['points'];
+    $signatureParts[] = str_pad((string)$v['points'], $padWidth, '0', STR_PAD_LEFT);
 }
+
 $vote_signature = implode('-', $signatureParts);
 
 //check for suspicios behaviors
