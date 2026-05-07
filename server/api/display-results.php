@@ -29,7 +29,7 @@ if ($result->num_rows > 0) {
         echo("<tr>
                 <td>{$row['entry_id']}</td>
                 <td>{$contestants_arr[$row['entry_id']]}</td>
-                <td>{$row['count']}</td>
+                <td>" . number_format($row['count']) . "</td>
               </tr>");
     }
 } else { // no data to show
