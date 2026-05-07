@@ -2,7 +2,7 @@
 
 A configurable, ranked voting widget built for KLRN’s City Showdown contest.
 
-This project, which replaces the original [KLRN City Showdown Voting App](https://github.com/ptdriscoll/klrn-city-showdown?tab=readme-ov-file), implements a drag-and-drop ranked voting interface with configurable entries and asynchronous API form submission. Although styled for City Showdown, the architecture is configuration-driven and reusable for other ranked voting applications.
+This project, which replaces the original [KLRN City Showdown Voting App](https://github.com/ptdriscoll/klrn-city-showdown?tab=readme-ov-file), implements a drag-and-drop ranked voting interface, configurable entries, secure vote submission, and a results dashboard. Although styled for City Showdown, the architecture is configuration-driven and reusable for other ranked voting applications.
 
 ![Nielsen Data Explorer Dashboard 2](images/ranked-voting-widget-2.png)
 
@@ -11,14 +11,14 @@ This project, which replaces the original [KLRN City Showdown Voting App](https:
 ## ✨ Features
 
 - Drag-and-drop ranked interface (SortableJS)
-- Configurable scoring ladder
-- Configurable entry list
+- Configurable entry list and scoring ladder
 - Multiple voting periods support
 - Client-side ZIP code validation
-- Structured JSON submission payload
-- Smooth height-transition thank-you state
-- Layered client-side vote integrity protections
-- Minimal dependency footprint (Sortable bundled locally)
+- JSON API vote submission
+- PHP/MySQL backend vote storage
+- Smooth thank-you state transition
+- Dashboard summarizing results and providing CSV download
+- Suspicion scoring and flagging for vote review
 
 ---
 
