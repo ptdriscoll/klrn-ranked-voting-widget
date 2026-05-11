@@ -22,32 +22,34 @@ This project, which replaces the original [KLRN City Showdown Voting App](https:
 
 ---
 
-## 🏗 Architecture and Flow
+## 🔒 Vote Integrity Layers
 
-The widget is designed as an embeddable component that:
+Designed to discourage duplicate or automated voting while preserving anonymous access.
 
-1. Reads configuration from a `<script type="application/json">`
-2. Generates entry items dynamically
-3. Applies ranked scoring based on drag order
-4. Validates user input and voting eligibility
-5. Submits validated JSON to a server endpoint
-6. Transitions to a thank-you state on success
-
----
-
-## 🔒 Client-Side Vote Integrity
+### Client-Side
 
 - One vote per device per voting period
-- Local storage and cookies are required for voting
-- Device fingerprint validation helps detect simple automation
-- Submit lock prevents re-submissions or accidental double votes
-- Timing protection blocks unrealistically fast submissions
-- Honeypot field helps detect automated bots
-- Voting period and votes cast are validated before submission
+- Local storage and cookies required for voting
+- Multi-tab submit lock
+- Timing protection
+- Honeypot bot field
+- Front-end fingerprint generation
+
+### Server-Side
+
+- Active voting period validation
+- Token uniqueness enforcement
+- Vote entry validation against config
+- Duplicate submission protection
+- Fingerprint / IP checks
+- Suspicion scoring flags:
+  - TOO-FAST
+  - SAME-SIG
+  - REPEATED
 
 ---
 
-## ⚙ Configuration
+## ⚙ Setup
 
 Configuration is injected via JSON in the HTML embed:
 
