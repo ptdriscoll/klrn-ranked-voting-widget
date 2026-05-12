@@ -51,6 +51,8 @@ Designed to discourage duplicate or automated voting while preserving anonymous 
 
 ## ⚙ Setup
 
+SQL code to manually clear and create the databasse tables `vote_sessions` and `vote_results` can be found at [`server/sql-reference.sql`](server/sql-reference.sql).
+
 Configuration is injected via JSON in the HTML embed:
 
 ```html
