@@ -73,3 +73,9 @@ Configuration is injected via JSON in the HTML embed:
   }
 </script>
 ```
+
+## References
+
+- [KLRN City Showdown](https://www.klrn.org/cityshowdown/)
+- [Bento 3 Documentation](https://docs.pbs.org/display/B3)
+- [Bento 3 Embed Code](https://docs.pbs.org/display/B3/Embed)
