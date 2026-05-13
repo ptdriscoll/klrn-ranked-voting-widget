@@ -65,7 +65,7 @@ ranked-voting-widget/
 
 Also, with the exception of `dev/embed.htm`, add the [`dev/`](https://github.com/ptdriscoll/klrn-ranked-voting-widget/tree/main/dev) directory to the same root folder.
 
-Then, rename [`server/config-example.php`](server/config-example.php) as `config.php`, and make edits to add database connection info, applicable timezones, and a list of users as `'username' => 'password'`. Add this new file to the same root folder.
+Then, rename [`server/config-example.php`](server/config-example.php) as `config.php`, and make edits to add database connection info, applicable time zones, and a list of users as `'username' => 'password'`. Add this new file to the same root folder.
 
 You'll end up with:
 
@@ -80,34 +80,42 @@ ranked-voting-widget/
 
 ```
 
-Next, use SQL at [`server/sql-reference.sql`](server/sql-reference.sql) to manually create the databasse tables `vote_sessions` and `vote_results`.
+Next, use SQL at [`server/sql-reference.sql`](server/sql-reference.sql) to create the database tables `vote_sessions` and `vote_results`.
 
 ### Client-Side
 
-Configuration is injected via JSON in the [HTML embed](dev/embed.htm):
+The entries, points ladder and voting periods are injected via JSON in the front end's [`dev/embed.htm`](dev/embed.htm) and the server's source of truth at [`server/includes/config.json`](server/includes/config.json) - make sure the JSON in both files is the same:
 
-```html
-<script type="application/json" id="csd-config">
-  {
-    "entries": [
-      { "id": 1, "name": "Band Name One" },
-      { "id": 2, "name": "Solo Artist Two" },
-      { "id": 3, "name": "Duo Group Three" },
-      { "id": 4, "name": "Band Name Four" },
-      { "id": 5, "name": "Artist Name Five" }
-    ],
-    "points": [16, 14, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
-    "votingPeriods": [
-      ["2026-02-08", "2026-02-14"],
-      ["2026-02-15", "2026-02-21"]
-    ],
-    "apiUrl": "/",
-    "testMode": true
-  }
-</script>
+```json
+{
+  "entries": [
+    { "id": 1, "name": "Band Name One" },
+    { "id": 2, "name": "Solo Artist Two" },
+    { "id": 3, "name": "Duo Group Three" },
+    { "id": 4, "name": "Band Name Four" },
+    { "id": 5, "name": "Artist Name Five" }
+  ],
+  "points": [16, 14, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+  "votingPeriods": [
+    ["2026-03-02 T 00:00:00 -06:00", "2026-03-13 T 23:59:59 -05:00"],
+    ["2026-03-16 T 00:00:00 -05:00", "2026-03-22 T 23:59:59 -05:00"],
+    ["2026-03-23 T 00:00:00 -05:00", "2026-03-29 T 23:59:59 -05:00"],
+    ["2026-05-04 T 00:00:00 -05:00", "2026-05-10 T 23:59:59 -05:00"]
+  ],
+  "apiUrl": "/",
+  "testMode": true
+}
 ```
 
-## References
+After configuring the JSON, add [`dev/embed.htm`](dev/embed.htm) to the HTML of a webpage. And edit the CSS `link` and JavaScript `script` tags to point to where they are on a server, i.e.:
+
+```html
+<link href="ranked-voting-widget/dev/styles.css?v=0.00" rel="stylesheet" />
+<!-- ... -->
+<script type="module" src="ranked-voting-widget/dev/script.js?v=0.31"></script>
+```
+
+## KLRN City Showdown References
 
 - [KLRN City Showdown](https://www.klrn.org/cityshowdown/)
 - [Bento 3 Documentation](https://docs.pbs.org/display/B3)
