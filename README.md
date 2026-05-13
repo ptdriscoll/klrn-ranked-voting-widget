@@ -107,6 +107,14 @@ The entries, points ladder and voting periods are injected via JSON in the front
 }
 ```
 
+In the JSON, `"testMode": true` ignores server errors when testing the front end without a valid submission URL. To add a server submission, set `"testMode": false` and point `"apiUrl": ...` to `submit-vote.php`, for example:
+
+```json
+ "...": "",
+"apiUrl": "ranked-voting-widget/api/submit-vote.php"
+"testMode": false
+```
+
 After configuring the JSON, add [`dev/embed.htm`](dev/embed.htm) to the HTML of a webpage. And edit the CSS `link` and JavaScript `script` tags to point to where they are on a server, i.e.:
 
 ```html
