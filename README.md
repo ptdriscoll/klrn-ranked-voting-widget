@@ -2,7 +2,7 @@
 
 A configurable, ranked voting widget built for KLRN’s City Showdown contest.
 
-This project, which replaces the original [KLRN City Showdown Voting App](https://github.com/ptdriscoll/klrn-city-showdown?tab=readme-ov-file), implements a drag-and-drop ranked voting interface, configurable entries, secure vote submission, and a results dashboard. Although styled for City Showdown, the architecture is configuration-driven and reusable for other ranked voting applications.
+This project, which replaces the original [KLRN City Showdown Voting App](https://github.com/ptdriscoll/klrn-city-showdown?tab=readme-ov-file), implements a drag-and-drop ranked voting interface, configurable entries and scoring, secure vote submission, and an admin results dashboard. Although styled for City Showdown, the architecture is configuration-driven and reusable for other ranked voting applications.
 
 ![Nielsen Data Explorer Dashboard 2](images/ranked-voting-widget-2.png)
 
@@ -11,14 +11,13 @@ This project, which replaces the original [KLRN City Showdown Voting App](https:
 ## ✨ Features
 
 - Drag-and-drop ranked interface (SortableJS)
-- Configurable entry list and scoring ladder
-- Multiple voting periods support
+- Configuration-driven entries, scoring, and voting periods
 - Client-side ZIP code validation
 - JSON API vote submission
 - PHP/MySQL backend vote storage
 - Smooth thank-you state transition
 - Dashboard summarizing results and providing CSV download
-- Suspicion scoring and flagging for vote review
+- CSV export includes ZIP, suspicion score, flags, IP, and fingerprint hash
 
 ---
 
@@ -28,7 +27,7 @@ Designed to discourage duplicate or automated voting while preserving anonymous 
 
 ### Client-Side
 
-- One vote per device per voting period
+- One vote per device per voting period (best-effort)
 - Local storage and cookies required for voting
 - Multi-tab submit lock
 - Timing protection
@@ -53,7 +52,7 @@ Designed to discourage duplicate or automated voting while preserving anonymous 
 
 ### Server-Side
 
-For this version of the app, place these assets from [`server/`](https://github.com/ptdriscoll/klrn-ranked-voting-widget/tree/main/server) in a root directory.
+For this version of the app, place these files from [`server/`](https://github.com/ptdriscoll/klrn-ranked-voting-widget/tree/main/server) in a web-accessible root directory.
 
 ```
 ranked-voting-widget/
@@ -107,15 +106,15 @@ The entries, points ladder and voting periods are injected via JSON in the front
 }
 ```
 
-In the JSON, `"testMode": true` ignores server errors when testing the front end without a valid submission URL. To add a server submission, set `"testMode": false` and point `"apiUrl": ...` to `submit-vote.php`, for example:
+In the JSON, `"testMode": true` ignores server errors when testing the front end without a valid submission URL. To add a live submission, set `"testMode": false` and point `"apiUrl": ...` to `submit-vote.php`, for example:
 
 ```json
  "...": "",
-"apiUrl": "ranked-voting-widget/api/submit-vote.php"
+"apiUrl": "/ranked-voting-widget/api/submit-vote.php"
 "testMode": false
 ```
 
-After configuring the JSON, add [`dev/embed.htm`](dev/embed.htm) to the HTML of a webpage. And edit the CSS `link` and JavaScript `script` tags to point to where they are on a server, i.e.:
+After configuring the JSON, embed the widget markup from [`dev/embed.htm`](dev/embed.htm) into a webpage. And edit the CSS `link` and JavaScript `script` tags to point to where they are on a server, i.e.:
 
 ```html
 <link href="ranked-voting-widget/dev/styles.css?v=0.00" rel="stylesheet" />
@@ -123,7 +122,7 @@ After configuring the JSON, add [`dev/embed.htm`](dev/embed.htm) to the HTML of 
 <script type="module" src="ranked-voting-widget/dev/script.js?v=0.31"></script>
 ```
 
-## KLRN City Showdown References
+## Related References
 
 - [KLRN City Showdown](https://www.klrn.org/cityshowdown/)
 - [Bento 3 Documentation](https://docs.pbs.org/display/B3)
