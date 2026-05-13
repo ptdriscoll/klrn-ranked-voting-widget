@@ -51,6 +51,8 @@ Designed to discourage duplicate or automated voting while preserving anonymous 
 
 ## ⚙ Setup
 
+### Server-Side
+
 For this version of the app, place these assets from [`server/`](https://github.com/ptdriscoll/klrn-ranked-voting-widget/tree/main/server) in a root directory.
 
 ```
@@ -63,23 +65,7 @@ ranked-voting-widget/
 
 Also, with the exception of `dev/embed.htm`, add the [`dev/`](https://github.com/ptdriscoll/klrn-ranked-voting-widget/tree/main/dev) directory to the same root folder.
 
-Rename `server/config-example.php` as `config.php`, make edits to add database connection info, applicable timezones, a list of users as `'username' => 'password'`, and add new file to the same root folder.
-
-```
-// config-example.php
-
-<?php
-return array(
-  'db_host' => 'localhost',
-  'db_user' => 'root',
-  'db_pass' => '',
-  'db_name' => 'klrn_city_showdown',
-  'db_timezone' => '+00:00',
-  'local_timezone' => 'America/Chicago',
-  'users' => ['dev1' => '123',
-              'dev2' => '234']
-);
-```
+Then, rename [`server/config-example.php`](server/config-example.php) as `config.php`, and make edits to add database connection info, applicable timezones, and a list of users as `'username' => 'password'`. Add this new file to the same root folder.
 
 You'll end up with:
 
@@ -94,7 +80,9 @@ ranked-voting-widget/
 
 ```
 
-Use SQL at [`server/sql-reference.sql`](server/sql-reference.sql) to manually create the databasse tables `vote_sessions` and `vote_results`.
+Next, use SQL at [`server/sql-reference.sql`](server/sql-reference.sql) to manually create the databasse tables `vote_sessions` and `vote_results`.
+
+### Client-Side
 
 Configuration is injected via JSON in the [HTML embed](dev/embed.htm):
 
