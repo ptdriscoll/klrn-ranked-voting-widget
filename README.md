@@ -63,7 +63,7 @@ ranked-voting-widget/
 
 Also, with the exception of `dev/embed.htm`, add the [`dev/`](https://github.com/ptdriscoll/klrn-ranked-voting-widget/tree/main/dev) directory to the same root folder.
 
-Rename `server/config-example.php` as `config.php`, make edits to add database connection info, applicable timezone, a list of users as `'username' => 'password'`, and add new file to the same root folder.
+Rename `server/config-example.php` as `config.php`, make edits to add database connection info, applicable timezones, a list of users as `'username' => 'password'`, and add new file to the same root folder.
 
 ```
 // config-example.php
@@ -76,7 +76,7 @@ return array(
   'db_name' => 'klrn_city_showdown',
   'db_timezone' => '+00:00',
   'local_timezone' => 'America/Chicago',
-	'users' => ['dev1' => '123',
+  'users' => ['dev1' => '123',
               'dev2' => '234']
 );
 ```
