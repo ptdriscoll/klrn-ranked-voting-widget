@@ -94,7 +94,7 @@ ranked-voting-widget/
 
 ```
 
-Use SQL code at [`server/sql-reference.sql`](server/sql-reference.sql) to manually clear and create the databasse tables `vote_sessions` and `vote_results`.
+Use SQL at [`server/sql-reference.sql`](server/sql-reference.sql) to manually create the databasse tables `vote_sessions` and `vote_results`.
 
 Configuration is injected via JSON in the [HTML embed](dev/embed.htm):
 
