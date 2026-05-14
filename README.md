@@ -101,18 +101,12 @@ The entries, points ladder and voting periods are injected via JSON in the front
     ["2026-03-23 T 00:00:00 -05:00", "2026-03-29 T 23:59:59 -05:00"],
     ["2026-05-04 T 00:00:00 -05:00", "2026-05-10 T 23:59:59 -05:00"]
   ],
-  "apiUrl": "/",
-  "testMode": true
+  "apiUrl": "../server/api/submit-vote.php",
+  "testMode": false
 }
 ```
 
-In the JSON, `"testMode": true` ignores server errors when testing the front end without a valid submission URL. To add a live submission, set `"testMode": false` and point `"apiUrl": ...` to `submit-vote.php`, for example:
-
-```json
- "...": "",
-"apiUrl": "/ranked-voting-widget/api/submit-vote.php"
-"testMode": false
-```
+To test the front-end withut a valid API URL, set `"testMode": true` in the JSON to override submission errors.
 
 After configuring the JSON, embed the widget markup from [`dev/embed.htm`](dev/embed.htm) into a webpage. And edit the CSS `link` and JavaScript `script` tags to point to where they are on a server, i.e.:
 
