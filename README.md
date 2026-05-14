@@ -106,7 +106,7 @@ The entries, points ladder and voting periods are injected via JSON in the front
 }
 ```
 
-To test the front-end withut a valid API URL, set `"testMode": true` in the JSON to override submission errors.
+To test the front-end without a valid API URL, set `"testMode": true` in the JSON to override submission errors.
 
 After configuring the JSON, embed the widget markup from [`dev/embed.htm`](dev/embed.htm) into a webpage. And edit the CSS `link` and JavaScript `script` tags to point to where they are on a server, i.e.:
 
