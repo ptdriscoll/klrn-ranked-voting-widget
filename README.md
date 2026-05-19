@@ -4,7 +4,7 @@ A configurable, ranked voting widget built for KLRN’s City Showdown contest.
 
 This project, which replaces the original [KLRN City Showdown Voting App](https://github.com/ptdriscoll/klrn-city-showdown?tab=readme-ov-file), implements a drag-and-drop ranked voting interface, configurable entries and scoring, secure vote submission, and an admin results dashboard. Although styled for City Showdown, the architecture is configuration-driven and reusable for other ranked voting applications.
 
-![Nielsen Data Explorer Dashboard 2](images/ranked-voting-widget-2.png)
+![ranked voting widget](images/ranked-voting-widget-main.jpg)
 
 ---
 
@@ -20,6 +20,8 @@ This project, which replaces the original [KLRN City Showdown Voting App](https:
 - CSV export includes ZIP, suspicion score, flags, IP, and fingerprint hash
 
 ---
+
+![Admin dashboard and CSV export](images/ranked-voting-widget-admin.jpg)
 
 ## 🔒 Vote Integrity Layers
 
@@ -47,6 +49,8 @@ Designed to discourage duplicate or automated voting while preserving anonymous 
   - REPEATED
 
 ---
+
+![Vote submitted state](images/ranked-voting-widget-success.jpg)
 
 ## ⚙ Setup
 
