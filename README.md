@@ -85,6 +85,8 @@ ranked-voting-widget/
 
 Next, use SQL at [`server/sql-reference.sql`](server/sql-reference.sql) to create the database tables `vote_sessions` and `vote_results`.
 
+Also, admin pages can be rebranded by editing assets in `server/assets/`.
+
 ### Client-Side
 
 The entries, points ladder and voting periods are injected via JSON in the front end's [`dev/embed.htm`](dev/embed.htm) and the server's source of truth at [`server/includes/config.json`](server/includes/config.json) - make sure the JSON in both files is the same:
